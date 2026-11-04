@@ -1,0 +1,14 @@
+App(
+    appid="power_monitor",
+    name="Power Monitor",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="power_monitor_app",
+    requires=["gui", "storage", "notification"],
+    stack_size=4 * 1024,
+    fap_category="Tools",
+    fap_icon="power_monitor_10px.png",
+    fap_version="1.0",
+    fap_description="Read-only battery, charging and USB monitor using the built-in BQ25896 charger and BQ27220 fuel gauge",
+    # Host unit tests live in tests/ and must not be built into the .fap
+    sources=["*.c", "!tests"],
+)
