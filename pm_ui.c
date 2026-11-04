@@ -220,7 +220,7 @@ static void pm_draw_graph(Canvas* canvas, PowerMonitorApp* app, uint32_t now_ms)
     uint32_t pt = 0;
     for(uint16_t i = 0; i < count; i++) {
         const PmHistoryPoint* p = pm_history_get(&app->history, i);
-        const uint32_t age = ref_ms - p->tick_ms;
+        const uint32_t age = pm_history_age_ms(ref_ms, p->tick_ms);
         if(age > PM_HISTORY_WINDOW_MS) continue;
         const int32_t x = x1 - (int32_t)((uint64_t)age * (uint64_t)w / PM_HISTORY_WINDOW_MS);
         const int32_t y = pm_scale_y(p->value[ch], lo, hi, y0, y1);
