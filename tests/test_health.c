@@ -79,10 +79,51 @@ static void test_time_estimates(void) {
     CHECK(!pm_health_time_to_full(&i, 500.0f, &m, &est)); /* already full */
 }
 
+static void test_gauge_not_ok(void) {
+    /* review PR #2: data from a gauge that is not OK is never "valid" */
+    PmBatteryInfo i = info_default();
+    i.gauge_ok = false;
+    i.ext_valid = true;
+    i.tte_min = 300;
+    i.ttf_min = 60;
+    PmHealth h;
+    pm_health_eval(&i, &h);
+    CHECK(!h.soh_valid);
+    CHECK(!h.ratio_valid);
+    CHECK(!h.capacity_valid);
+    uint32_t m;
+    bool est;
+    CHECK(!pm_health_time_to_empty(&i, -200.0f, &m, &est));
+    CHECK(!pm_health_time_to_full(&i, 500.0f, &m, &est));
+    i.ext_valid = false;
+    CHECK(!pm_health_time_to_empty(&i, -200.0f, &m, &est));
+    CHECK(!pm_health_time_to_full(&i, 500.0f, &m, &est));
+}
+
+static void test_gauge_time_needs_direction(void) {
+    /* review PR #2: a gauge time is shown only for the matching direction */
+    PmBatteryInfo i = info_default();
+    i.ext_valid = true;
+    i.tte_min = 312;
+    i.ttf_min = 45;
+    uint32_t m;
+    bool est;
+    CHECK(!pm_health_time_to_empty(&i, 100.0f, &m, &est)); /* charging */
+    CHECK(!pm_health_time_to_empty(&i, -2.0f, &m, &est)); /* idle */
+    CHECK(pm_health_time_to_empty(&i, -100.0f, &m, &est));
+    CHECK(m == 312u);
+    CHECK(!pm_health_time_to_full(&i, -100.0f, &m, &est)); /* discharging */
+    CHECK(!pm_health_time_to_full(&i, 2.0f, &m, &est)); /* idle */
+    CHECK(pm_health_time_to_full(&i, 100.0f, &m, &est));
+    CHECK(m == 45u);
+}
+
 void test_health_suite(void) {
     printf("[health]\n");
     RUN(test_eval_valid);
     RUN(test_eval_invalid);
     RUN(test_time_from_gauge);
     RUN(test_time_estimates);
+    RUN(test_gauge_not_ok);
+    RUN(test_gauge_time_needs_direction);
 }

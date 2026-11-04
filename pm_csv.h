@@ -24,7 +24,10 @@
 /** Header line (with trailing newline). Returns length or 0 on truncation. */
 size_t pm_csv_header(char* buf, size_t size);
 
-/** Data line (with trailing newline). Returns length or 0 on truncation. */
+/**
+ * Data line (with trailing newline). The CSV contains valid samples only:
+ * returns 0 for a sample with valid == false, and 0 on truncation.
+ */
 size_t pm_csv_row(
     char* buf,
     size_t size,

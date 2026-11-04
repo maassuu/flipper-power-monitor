@@ -30,7 +30,7 @@ typedef struct {
     uint32_t samples;
     uint32_t start_tick_ms;
     uint32_t last_tick_ms;
-    uint32_t weighted_ms; /**< Time covered by the integral */
+    uint64_t weighted_ms; /**< Time covered by the integral (64-bit: no wrap after 49.7 days) */
     bool has_prev;
 } PmStats;
 

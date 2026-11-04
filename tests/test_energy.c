@@ -92,6 +92,22 @@ static void test_tick_wraparound(void) {
     CHECK_NEAR(e.charge_mwh, 4500.0 / 3600.0, 1e-9);
 }
 
+static void test_integrated_time_past_32bit(void) {
+    /* 430000 segments of 10 s = 4.3e9 ms > UINT32_MAX (review PR #2) */
+    PmEnergy e;
+    pm_energy_reset(&e);
+    uint32_t t = 0;
+    for(uint32_t i = 0; i <= 430000u; i++) {
+        pm_energy_add(&e, t, 0.036f, 10.0f);
+        t += 10000u; /* uint32 tick wraps on the way, like the kernel tick */
+    }
+    CHECK(e.integrated_ms == 4300000000ull);
+    CHECK(e.integrated_ms > (uint64_t)UINT32_MAX);
+    CHECK(e.gaps == 0);
+    /* 0.036 W for 4.3e9 ms = 43000 mWh, accumulators keep working */
+    CHECK_NEAR(e.charge_mwh, (double)0.036f * 4300000000.0 / 3600.0, 1e-3);
+}
+
 void test_energy_suite(void) {
     printf("[energy]\n");
     RUN(test_power_formula);
@@ -101,4 +117,5 @@ void test_energy_suite(void) {
     RUN(test_zero_crossing_split);
     RUN(test_gap_and_break);
     RUN(test_tick_wraparound);
+    RUN(test_integrated_time_past_32bit);
 }

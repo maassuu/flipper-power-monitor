@@ -8,6 +8,12 @@
 extern int pm_test_failures;
 extern int pm_test_checks;
 
+/* True only when |a - b| <= eps. Written so that NaN (and opposite
+ * infinities) compare as NOT near, instead of slipping through. */
+static inline int pm_test_near(double a, double b, double eps) {
+    return fabs(a - b) <= eps;
+}
+
 #define CHECK(cond)                                                          \
     do {                                                                     \
         pm_test_checks++;                                                    \
@@ -22,7 +28,7 @@ extern int pm_test_checks;
         pm_test_checks++;                                                    \
         const double _a = (double)(a);                                       \
         const double _b = (double)(b);                                       \
-        if(fabs(_a - _b) > (double)(eps)) {                                  \
+        if(!pm_test_near(_a, _b, (double)(eps))) {                           \
             pm_test_failures++;                                              \
             printf(                                                          \
                 "  FAIL %s:%d: %s = %.6f, expected %.6f\n",                  \

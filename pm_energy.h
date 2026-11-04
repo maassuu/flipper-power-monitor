@@ -23,7 +23,7 @@ typedef struct {
     double discharge_mwh; /**< Energy taken out of the battery, >= 0 */
     double charge_mah; /**< Charge that went into the battery, >= 0 */
     double discharge_mah; /**< Charge taken out of the battery, >= 0 */
-    uint32_t integrated_ms; /**< Total time covered by integration */
+    uint64_t integrated_ms; /**< Total time covered by integration (64-bit: no wrap after 49.7 days) */
     uint32_t gaps; /**< Number of skipped segments (gap or invalid data) */
 
     bool has_prev;

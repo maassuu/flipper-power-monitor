@@ -1,17 +1,18 @@
 #include "pm_format.h"
 
 #include <stdio.h>
+#include <string.h>
 
-void pm_fmt_duration(char* buf, size_t size, uint32_t ms) {
-    const uint32_t total_s = ms / 1000u;
-    const uint32_t days = total_s / 86400u;
-    const uint32_t h = (total_s / 3600u) % 24u;
-    const uint32_t m = (total_s / 60u) % 60u;
-    const uint32_t s = total_s % 60u;
+void pm_fmt_duration(char* buf, size_t size, uint64_t ms) {
+    const uint64_t total_s = ms / 1000u;
+    const unsigned long days = (unsigned long)(total_s / 86400u);
+    const unsigned long h = (unsigned long)((total_s / 3600u) % 24u);
+    const unsigned long m = (unsigned long)((total_s / 60u) % 60u);
+    const unsigned long s = (unsigned long)(total_s % 60u);
     if(days > 0) {
-        snprintf(buf, size, "%lud %02lu:%02lu", (unsigned long)days, (unsigned long)h, (unsigned long)m);
+        snprintf(buf, size, "%lud %02lu:%02lu", days, h, m);
     } else {
-        snprintf(buf, size, "%02lu:%02lu:%02lu", (unsigned long)h, (unsigned long)m, (unsigned long)s);
+        snprintf(buf, size, "%02lu:%02lu:%02lu", h, m, s);
     }
 }
 
@@ -46,7 +47,14 @@ void pm_fmt_current(char* buf, size_t size, float ma) {
 }
 
 void pm_fmt_power(char* buf, size_t size, float w) {
-    /* Avoid "-0.00W" */
-    if(w > -0.005f && w < 0.005f) w = 0.0f;
-    snprintf(buf, size, (w > 0.0f) ? "+%.2fW" : "%.2fW", (double)w);
+    /* Format the magnitude first and decide the sign from the rounded text,
+     * so values that round to zero never print as "-0.00W" or "+0.00W". */
+    char mag[16];
+    const float a = (w < 0.0f) ? -w : w;
+    snprintf(mag, sizeof(mag), "%.2f", (double)a);
+    if(strcmp(mag, "0.00") == 0) {
+        snprintf(buf, size, "0.00W");
+    } else {
+        snprintf(buf, size, "%c%sW", (w < 0.0f) ? '-' : '+', mag);
+    }
 }

@@ -26,6 +26,11 @@ const PmHistoryPoint* pm_history_get(const PmHistory* history, uint16_t index) {
     return &history->points[(oldest + index) % PM_HISTORY_CAPACITY];
 }
 
+uint32_t pm_history_age_ms(uint32_t now_ms, uint32_t tick_ms) {
+    const int32_t age = (int32_t)(now_ms - tick_ms);
+    return (age > 0) ? (uint32_t)age : 0u;
+}
+
 bool pm_history_range(
     const PmHistory* history,
     PmChannel channel,
@@ -36,8 +41,7 @@ bool pm_history_range(
     bool found = false;
     for(uint16_t i = 0; i < history->count; i++) {
         const PmHistoryPoint* p = pm_history_get(history, i);
-        const uint32_t age = now_ms - p->tick_ms;
-        if(age > window_ms) continue;
+        if(pm_history_age_ms(now_ms, p->tick_ms) > window_ms) continue;
         const float v = p->value[channel];
         if(!found) {
             *min = v;

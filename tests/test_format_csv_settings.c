@@ -11,6 +11,8 @@ static void test_duration(void) {
     CHECK_STR(b, "01:02:03");
     pm_fmt_duration(b, sizeof(b), 90061000u); /* 1 d 1 h 1 m 1 s */
     CHECK_STR(b, "1d 01:01");
+    pm_fmt_duration(b, sizeof(b), 4300000000ull); /* past UINT32_MAX: 49 d 18:26 */
+    CHECK_STR(b, "49d 18:26");
 }
 
 static void test_minutes(void) {
@@ -49,6 +51,15 @@ static void test_current_power_fmt(void) {
     CHECK_STR(b, "0.00W");
     pm_fmt_power(b, sizeof(b), -0.5f);
     CHECK_STR(b, "-0.50W");
+    /* boundaries that round to zero must not carry a sign (review PR #2) */
+    pm_fmt_power(b, sizeof(b), -0.005f);
+    CHECK_STR(b, "0.00W");
+    pm_fmt_power(b, sizeof(b), 0.005f);
+    CHECK_STR(b, "0.00W");
+    pm_fmt_power(b, sizeof(b), -0.0051f);
+    CHECK_STR(b, "-0.01W");
+    pm_fmt_power(b, sizeof(b), 0.0f);
+    CHECK_STR(b, "0.00W");
 }
 
 static void test_csv(void) {
@@ -60,6 +71,7 @@ static void test_csv(void) {
     const PmClock clk = {2026, 11, 4, 18, 5, 9};
     PmSample s;
     memset(&s, 0, sizeof(s));
+    s.valid = true;
     s.tick_ms = 123456;
     s.usb_v = 5.1f;
     s.bat_v = 4.123f;
@@ -87,6 +99,12 @@ static void test_csv(void) {
     for(const char* p = header; *p; p++) commas_h += (*p == ',');
     for(const char* p = line; *p; p++) commas_r += (*p == ',');
     CHECK(commas_h == commas_r);
+
+    /* invalid samples are never written (review PR #2) */
+    s.valid = false;
+    CHECK(pm_csv_row(line, sizeof(line), &clk, &s, PmPhaseNotCharging, &e) == 0);
+    CHECK_STR(line, "");
+    s.valid = true;
 
     /* truncation reported */
     char tiny[16];
