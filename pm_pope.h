@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define PM_POPE_W (54u)
+#define PM_POPE_W (52u)
 #define PM_POPE_H (64u)
 
 extern const char* const pm_pope_rows[PM_POPE_H];

@@ -484,12 +484,16 @@ static void pm_draw_splash(Canvas* canvas) {
         }
     }
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 60, 17, "Power");
+    canvas_draw_str(canvas, 60, 17, "Papa");
     canvas_draw_str(canvas, 60, 29, "Monitor");
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 60, 41, "v1.0");
     canvas_draw_str(canvas, 60, 51, "read-only");
-    canvas_draw_str(canvas, 60, 62, "any key...");
+    /* Keep the hint fully on screen whatever the font width is */
+    const char* hint = "press any key";
+    const int32_t hint_w = (int32_t)canvas_string_width(canvas, hint);
+    canvas_draw_str(canvas, (60 + hint_w <= 128) ? 60 : 128 - hint_w, 62, hint);
+    canvas_draw_str_aligned(canvas, 127, 7, AlignRight, AlignBottom, "+3");
 }
 
 void pm_ui_draw(Canvas* canvas, PowerMonitorApp* app, uint32_t now_ms) {
