@@ -21,7 +21,7 @@ typedef struct {
 static PmLine pm_lines[PM_UI_MAX_LINES];
 
 static const char* const pm_view_titles[PmViewCount] = {
-    "Power Monitor",
+    "Papa Monitor",
     "Graphs",
     "Statistics",
     "Battery energy",
