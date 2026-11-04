@@ -1,0 +1,15 @@
+# uFBT build output and state
+dist/
+.ufbt/
+.vscode/
+compile_commands.json
+
+# Host unit test build output
+tests/build/
+
+# Editors / OS
+.DS_Store
+*.swp
+
+# Local Claude Code settings
+.claude/
