@@ -42,6 +42,20 @@ static void test_range_window(void) {
     CHECK(!pm_history_range(&history, PmChannelVoltage, 200000, 1000, &mn, &mx));
 }
 
+static void test_future_point_in_window(void) {
+    /* review PR #2: a point newer than now is in the window, not "very old" */
+    CHECK(pm_history_age_ms(1000, 1500) == 0u);
+    CHECK(pm_history_age_ms(1500, 1000) == 500u);
+    CHECK(pm_history_age_ms(0x00000100u, 0xFFFFFF00u) == 0x200u); /* across wrap */
+    pm_history_reset(&history);
+    push(10000, 4.0f);
+    push(10250, 4.3f); /* stamped after "now" below */
+    float mn, mx;
+    CHECK(pm_history_range(&history, PmChannelVoltage, 10100, PM_HISTORY_WINDOW_MS, &mn, &mx));
+    CHECK_NEAR(mx, 4.3, 1e-6);
+    CHECK_NEAR(mn, 4.0, 1e-6);
+}
+
 static void test_autoscale(void) {
     float lo, hi;
     /* flat signal gets the minimum span, centered */
@@ -71,6 +85,7 @@ void test_history_suite(void) {
     RUN(test_order_and_wrap);
     RUN(test_capacity_covers_window);
     RUN(test_range_window);
+    RUN(test_future_point_in_window);
     RUN(test_autoscale);
     RUN(test_scale_y);
 }

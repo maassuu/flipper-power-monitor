@@ -24,12 +24,14 @@ typedef struct {
     bool capacity_valid; /**< remaining/full/design are plausible */
 } PmHealth;
 
+/** All flags stay false when info->gauge_ok is false. */
 void pm_health_eval(const PmBatteryInfo* info, PmHealth* health);
 
 /**
- * Time to empty: gauge TimeToEmpty() when available (extended reads),
- * otherwise an estimate remaining / |current| while discharging.
- * @return false if not applicable (not discharging / no data).
+ * Time to empty, only while discharging (current below -5 mA) and with a
+ * healthy gauge: gauge TimeToEmpty() when available (extended reads),
+ * otherwise an estimate remaining / |current|.
+ * @return false if not applicable (not discharging / gauge not OK / no data).
  */
 bool pm_health_time_to_empty(
     const PmBatteryInfo* info,
@@ -38,9 +40,10 @@ bool pm_health_time_to_empty(
     bool* estimated);
 
 /**
- * Time to full: gauge TimeToFull() when available, otherwise an estimate
- * (full - remaining) / current while charging. The estimate ignores the
- * constant-voltage taper and is therefore optimistic.
+ * Time to full, only while charging (current above +5 mA) and with a
+ * healthy gauge: gauge TimeToFull() when available, otherwise an estimate
+ * (full - remaining) / current. The estimate ignores the constant-voltage
+ * taper and is therefore optimistic.
  */
 bool pm_health_time_to_full(
     const PmBatteryInfo* info,

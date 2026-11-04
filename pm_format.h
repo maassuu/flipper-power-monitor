@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 /** "HH:MM:SS", or "Dd HH:MM" from 24 h up. */
-void pm_fmt_duration(char* buf, size_t size, uint32_t ms);
+void pm_fmt_duration(char* buf, size_t size, uint64_t ms);
 
 /** "5h12m", "45m", or "--" when minutes is UINT32_MAX. */
 void pm_fmt_minutes(char* buf, size_t size, uint32_t minutes);

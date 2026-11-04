@@ -23,6 +23,11 @@ size_t pm_csv_row(
     const PmSample* sample,
     PmChargePhase phase,
     const PmEnergy* energy) {
+    /* Gauge read failed: the values are not measurements, do not log them */
+    if(!sample->valid) {
+        if(size > 0) buf[0] = '\0';
+        return 0;
+    }
     const int n = snprintf(
         buf,
         size,

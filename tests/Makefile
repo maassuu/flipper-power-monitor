@@ -1,10 +1,13 @@
 # Host unit tests for the hardware independent modules.
-# Usage: make -C tests        (build and run)
+# Usage: make -C tests                       (build and run)
+#        make -C tests EXTRA_CFLAGS=-O2      (add flags, required ones stay)
 #        make -C tests clean
 
 CC ?= cc
-CFLAGS ?= -std=c11 -O1 -g -Wall -Wextra -Werror -Wdouble-promotion -Wshadow \
-          -Wconversion -Wno-sign-conversion -fsanitize=address,undefined
+# Required flags are set with '=' so that a CFLAGS variable from the
+# environment cannot silently drop -Werror or the sanitizers.
+CFLAGS = -std=c11 -O1 -g -Wall -Wextra -Werror -Wdouble-promotion -Wshadow \
+         -Wconversion -Wno-sign-conversion -fsanitize=address,undefined $(EXTRA_CFLAGS)
 LDLIBS = -lm
 
 SRC_DIR = ..

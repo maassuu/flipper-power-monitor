@@ -10,6 +10,10 @@
 void pm_health_eval(const PmBatteryInfo* info, PmHealth* health) {
     memset(health, 0, sizeof(*health));
 
+    /* Gauge not OK (no battery, init not complete, config failed): its
+     * numbers are not trustworthy, report everything as not available. */
+    if(!info->gauge_ok) return;
+
     /* The firmware driver returns 0 on I2C error. */
     if(info->soh_pct > 0 && info->soh_pct <= 100) {
         health->soh_valid = true;
@@ -35,13 +39,15 @@ bool pm_health_time_to_empty(
     float bat_current_ma,
     uint32_t* minutes,
     bool* estimated) {
+    /* Only while really discharging, also when the gauge reports a time */
+    if(!info->gauge_ok || bat_current_ma > -PM_HEALTH_MIN_CURRENT_MA) return false;
     if(info->ext_valid) {
         if(info->tte_min == PM_GAUGE_TIME_NA) return false;
         *minutes = info->tte_min;
         *estimated = false;
         return true;
     }
-    if(bat_current_ma > -PM_HEALTH_MIN_CURRENT_MA || info->remaining_mah == 0) return false;
+    if(info->remaining_mah == 0) return false;
     *minutes = (uint32_t)((float)info->remaining_mah * 60.0f / -bat_current_ma);
     *estimated = true;
     return true;
@@ -52,15 +58,15 @@ bool pm_health_time_to_full(
     float bat_current_ma,
     uint32_t* minutes,
     bool* estimated) {
+    /* Only while really charging, also when the gauge reports a time */
+    if(!info->gauge_ok || bat_current_ma < PM_HEALTH_MIN_CURRENT_MA) return false;
     if(info->ext_valid) {
         if(info->ttf_min == PM_GAUGE_TIME_NA) return false;
         *minutes = info->ttf_min;
         *estimated = false;
         return true;
     }
-    if(bat_current_ma < PM_HEALTH_MIN_CURRENT_MA || info->full_mah <= info->remaining_mah) {
-        return false;
-    }
+    if(info->full_mah <= info->remaining_mah) return false;
     *minutes = (uint32_t)((float)(info->full_mah - info->remaining_mah) * 60.0f / bat_current_ma);
     *estimated = true;
     return true;

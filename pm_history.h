@@ -36,6 +36,13 @@ uint16_t pm_history_count(const PmHistory* history);
 const PmHistoryPoint* pm_history_get(const PmHistory* history, uint16_t index);
 
 /**
+ * Age of a point in ms (wrap-safe). A point stamped slightly after now_ms
+ * (now read before the newest sample was stored) has age 0 instead of a
+ * huge wrapped value.
+ */
+uint32_t pm_history_age_ms(uint32_t now_ms, uint32_t tick_ms);
+
+/**
  * Min / max of a channel over points not older than window_ms before now_ms.
  * @return false if there are no points in the window.
  */
