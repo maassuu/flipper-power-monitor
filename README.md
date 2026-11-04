@@ -8,7 +8,13 @@ The application is **read-only**: it never writes to the charger or the gauge an
 does not change any charging or power setting.
 
 - Target: official Flipper Zero firmware (built and checked against release **1.5.1**, API 88.2)
+- Also builds for **Momentum** firmware (checked against `mntm-012`, API 87.1) - see [Firmware compatibility](#firmware-compatibility)
 - Category: `Tools` - installed as `/ext/apps/Tools/power_monitor.fap`
+
+![Splash screen preview](docs/splash_preview.png)
+
+*Splash screen preview, 6x scale. The portrait is pixel exact; text is drawn with
+an approximate font, on the device it uses the Flipper system font.*
 
 ## What it measures
 
@@ -71,7 +77,7 @@ especially the **backlight** draw current from the battery.
 
 | # | Screen | Content | OK |
 |---|---|---|---|
-| - | Splash | Portrait and version, closes after 2.5 s or any key | - |
+| - | Splash | Portrait, "Papa Monitor", version, closes after 2.5 s or any key | - |
 | 1 | Dashboard | USB V, battery V, current, power, %, temperature, charge phase | Start / stop CSV |
 | 2 | Graphs | Last 60 s of battery V, I or P, auto-scaled, zero line | Pause / resume |
 | 3 | Statistics | MIN / AVG / MAX of V, I, P, session time | Reset |
@@ -141,6 +147,21 @@ The SDK version must match the firmware on your Flipper. Keep both on the curren
 official release (update the Flipper with qFlipper, then run
 `ufbt update --channel=release`). Other ways to select an SDK are listed in
 `ufbt update --help`.
+
+### Firmware compatibility
+
+A `.fap` carries the API version of the SDK it was built with. If it does not
+match the firmware, the Flipper shows e.g. `APP:88 > FW:87 This app might not
+work`. Do not continue: rebuild for your firmware instead.
+
+| Firmware | SDK command | API |
+|---|---|---|
+| Official release | `ufbt update --channel=release` | 88.2 (1.5.1) |
+| Momentum release | `ufbt update --index-url=https://up.momentum-fw.dev/firmware/directory.json --channel=release` | 87.1 (mntm-012) |
+
+Then run `ufbt` again. Both builds were checked with uFBT `APPCHK`: every symbol
+the app imports is present in the firmware API table. For Momentum, update the
+Flipper to the same Momentum release the SDK was taken from.
 
 ## Install on Flipper Zero
 
