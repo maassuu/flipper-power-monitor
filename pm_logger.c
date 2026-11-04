@@ -28,7 +28,7 @@ PmLogger* pm_logger_alloc(Storage* storage) {
 }
 
 void pm_logger_free(PmLogger* logger) {
-    pm_logger_stop(logger);
+    (void)pm_logger_stop(logger); /* app is exiting: nobody to report to */
     storage_file_free(logger->file);
     free(logger);
 }
@@ -40,7 +40,7 @@ bool pm_logger_ensure_dir(Storage* storage) {
 }
 
 PmLogStatus pm_logger_start(PmLogger* logger, const PmClock* clock) {
-    pm_logger_stop(logger);
+    (void)pm_logger_stop(logger); /* callers stop explicitly first */
 
     if(storage_sd_status(logger->storage) != FSE_OK) return PmLogNoCard;
     if(!pm_logger_ensure_dir(logger->storage)) return PmLogDirError;
@@ -74,27 +74,36 @@ PmLogStatus pm_logger_start(PmLogger* logger, const PmClock* clock) {
     return st;
 }
 
-void pm_logger_stop(PmLogger* logger) {
-    if(!logger->active) return;
-    storage_file_sync(logger->file);
+/* Card removed or full: log, close the file (keeping what was written) and
+ * end the session. */
+static PmLogStatus pm_logger_fail(PmLogger* logger, const char* what) {
+    FURI_LOG_E(TAG, "%s: %s", what, storage_file_get_error_desc(logger->file));
     storage_file_close(logger->file);
     logger->active = false;
+    return PmLogWriteError;
+}
+
+PmLogStatus pm_logger_stop(PmLogger* logger) {
+    if(!logger->active) return PmLogOk;
+    if(!storage_file_sync(logger->file)) return pm_logger_fail(logger, "sync");
+    logger->active = false;
+    if(!storage_file_close(logger->file)) {
+        FURI_LOG_E(TAG, "close: %s", storage_file_get_error_desc(logger->file));
+        return PmLogWriteError;
+    }
     FURI_LOG_I(TAG, "closed %s, %lu rows", logger->path, (unsigned long)logger->rows);
+    return PmLogOk;
 }
 
 PmLogStatus pm_logger_write(PmLogger* logger, const char* line) {
     if(!logger->active) return PmLogWriteError;
     const size_t len = strlen(line);
     const size_t written = storage_file_write(logger->file, line, len);
-    if(written != len) {
-        FURI_LOG_E(TAG, "write: %s", storage_file_get_error_desc(logger->file));
-        /* Card removed or full: close the file, keep what was written */
-        storage_file_close(logger->file);
-        logger->active = false;
-        return PmLogWriteError;
-    }
+    if(written != len) return pm_logger_fail(logger, "write");
     logger->rows++;
-    if((logger->rows % PM_LOG_SYNC_EVERY) == 0) storage_file_sync(logger->file);
+    if((logger->rows % PM_LOG_SYNC_EVERY) == 0 && !storage_file_sync(logger->file)) {
+        return pm_logger_fail(logger, "sync");
+    }
     return PmLogOk;
 }
 

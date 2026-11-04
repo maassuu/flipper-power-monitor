@@ -325,7 +325,7 @@ static uint8_t pm_build_energy(PowerMonitorApp* app) {
     pm_fmt_duration(v, sizeof(v), e->integrated_ms);
     n = pm_line(n, "Measured", v);
     n = pm_line(n, "USB input", "not measurable");
-    n = pm_line(n, " (no IBUS ADC in BQ25896)", NULL);
+    n = pm_line(n, " (BQ25896: no IBUS ADC)", NULL);
     snprintf(v, sizeof(v), "%lu", (unsigned long)e->gaps);
     n = pm_line(n, "Data gaps", v);
     n = pm_line(n, "OK = reset counters", NULL);

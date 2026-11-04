@@ -92,9 +92,14 @@ static void pm_apply_backlight(PowerMonitorApp* app, bool on) {
 static void pm_logging_toggle(PowerMonitorApp* app, uint32_t* last_csv_ms) {
     char msg[40];
     if(pm_logger_is_active(app->logger)) {
-        pm_logger_stop(app->logger);
+        const PmLogStatus stop_st = pm_logger_stop(app->logger);
         app->log_active = false;
-        snprintf(msg, sizeof(msg), "Saved %lu rows", (unsigned long)pm_logger_rows(app->logger));
+        if(stop_st == PmLogOk) {
+            snprintf(
+                msg, sizeof(msg), "Saved %lu rows", (unsigned long)pm_logger_rows(app->logger));
+        } else {
+            snprintf(msg, sizeof(msg), "Save failed: %s", pm_log_status_text(stop_st));
+        }
         pm_toast(app, msg);
         return;
     }

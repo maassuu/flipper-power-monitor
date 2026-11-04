@@ -27,6 +27,7 @@ int main(void) {
     test_csv_suite();
     test_settings_suite();
     test_pope_suite();
+    test_logger_suite();
 
     printf("\n%d checks, %d failures\n", pm_test_checks, pm_test_failures);
     return pm_test_failures == 0 ? 0 : 1;
