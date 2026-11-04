@@ -274,8 +274,8 @@ uint32_t pm_charge_session_ms(const PmCharge* charge, uint32_t now_ms) {
 PmTrend pm_charge_trend(const PmCharge* charge) {
     if(charge->trend_count < PM_TREND_POINTS) return PmTrendUnknown;
     const uint8_t half = PM_TREND_POINTS / 2u;
-    double older = 0.0;
-    double newer = 0.0;
+    double older = 0;
+    double newer = 0;
     /* trend_head points at the oldest entry when the buffer is full */
     for(uint8_t i = 0; i < PM_TREND_POINTS; i++) {
         const float v = charge->trend[(charge->trend_head + i) % PM_TREND_POINTS];

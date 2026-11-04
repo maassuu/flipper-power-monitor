@@ -27,9 +27,10 @@ void pm_fmt_minutes(char* buf, size_t size, uint32_t minutes) {
 }
 
 void pm_fmt_energy(char* buf, size_t size, double mwh) {
-    const double mag = (mwh < 0.0) ? -mwh : mwh;
-    if(mag >= 1000.0) {
-        snprintf(buf, size, "%.4fWh", mwh / 1000.0);
+    /* integer literals: the SDK builds with -fsingle-precision-constant */
+    const double mag = (mwh < 0) ? -mwh : mwh;
+    if(mag >= 1000) {
+        snprintf(buf, size, "%.4fWh", mwh / 1000);
     } else {
         snprintf(buf, size, "%.2fmWh", mwh);
     }

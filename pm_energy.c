@@ -2,8 +2,11 @@
 
 #include <string.h>
 
-/* W * ms = mJ; 1 mWh = 3600 mJ */
-#define PM_MS_PER_HOUR (3600000.0)
+/* W * ms = mJ; 1 mWh = 3600 mJ.
+ * Note: the Flipper SDK builds with -fsingle-precision-constant, so literals
+ * like 0.5 are float. Double math below uses integer literals on purpose. */
+#define PM_MS_PER_HOUR (3600000)
+#define PM_MJ_PER_MWH  (3600)
 
 float pm_power_w(float voltage_v, float current_ma) {
     return voltage_v * current_ma / 1000.0f;
@@ -23,13 +26,13 @@ double pm_energy_net_mwh(const PmEnergy* energy) {
 }
 
 void pm_split_trapezoid(float a, float b, double dt, double* positive, double* negative) {
-    double pos = 0.0;
-    double neg = 0.0;
+    double pos = 0;
+    double neg = 0;
 
-    if(dt > 0.0) {
+    if(dt > 0) {
         if((a >= 0.0f && b >= 0.0f) || (a <= 0.0f && b <= 0.0f)) {
-            const double area = ((double)a + (double)b) * 0.5 * dt;
-            if(area >= 0.0) {
+            const double area = ((double)a + (double)b) * dt / 2;
+            if(area >= 0) {
                 pos = area;
             } else {
                 neg = -area;
@@ -39,8 +42,8 @@ void pm_split_trapezoid(float a, float b, double dt, double* positive, double* n
             const double fa = (a < 0.0f) ? -(double)a : (double)a;
             const double fb = (b < 0.0f) ? -(double)b : (double)b;
             const double t0 = dt * fa / (fa + fb);
-            const double area_a = fa * t0 * 0.5;
-            const double area_b = fb * (dt - t0) * 0.5;
+            const double area_a = fa * t0 / 2;
+            const double area_b = fb * (dt - t0) / 2;
             if(a > 0.0f) {
                 pos = area_a;
                 neg = area_b;
@@ -61,8 +64,8 @@ void pm_energy_add(PmEnergy* energy, uint32_t tick_ms, float power_w, float curr
         if(dt_ms > 0 && dt_ms <= PM_ENERGY_MAX_GAP_MS) {
             double pos, neg;
             pm_split_trapezoid(energy->prev_power_w, power_w, (double)dt_ms, &pos, &neg);
-            energy->charge_mwh += pos / PM_MS_PER_HOUR * 1000.0;
-            energy->discharge_mwh += neg / PM_MS_PER_HOUR * 1000.0;
+            energy->charge_mwh += pos / PM_MJ_PER_MWH;
+            energy->discharge_mwh += neg / PM_MJ_PER_MWH;
 
             pm_split_trapezoid(energy->prev_current_ma, current_ma, (double)dt_ms, &pos, &neg);
             energy->charge_mah += pos / PM_MS_PER_HOUR;

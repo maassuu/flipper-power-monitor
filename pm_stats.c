@@ -31,7 +31,7 @@ void pm_stats_add(PmStats* stats, uint32_t tick_ms, const float values[PmChannel
             if(v > st->max) st->max = v;
         }
         if(dt_ms > 0) {
-            st->integral += ((double)st->last + (double)v) * 0.5 * (double)dt_ms;
+            st->integral += ((double)st->last + (double)v) * (double)dt_ms / 2;
         }
         st->last = v;
     }
