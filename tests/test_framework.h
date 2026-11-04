@@ -57,3 +57,4 @@ void test_health_suite(void);
 void test_format_suite(void);
 void test_csv_suite(void);
 void test_settings_suite(void);
+void test_pope_suite(void);

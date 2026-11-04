@@ -12,9 +12,9 @@ BUILD = build
 
 APP_SRC = $(SRC_DIR)/pm_energy.c $(SRC_DIR)/pm_stats.c $(SRC_DIR)/pm_history.c \
           $(SRC_DIR)/pm_charge.c $(SRC_DIR)/pm_health.c $(SRC_DIR)/pm_format.c \
-          $(SRC_DIR)/pm_csv.c $(SRC_DIR)/pm_settings.c
+          $(SRC_DIR)/pm_csv.c $(SRC_DIR)/pm_settings.c $(SRC_DIR)/pm_pope.c
 TEST_SRC = test_main.c test_energy.c test_stats.c test_history.c test_charge.c \
-           test_health.c test_format_csv_settings.c
+           test_health.c test_format_csv_settings.c test_pope.c
 
 .PHONY: all run clean
 
