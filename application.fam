@@ -1,6 +1,6 @@
 App(
     appid="power_monitor",
-    name="Power Monitor",
+    name="Papa Monitor",
     apptype=FlipperAppType.EXTERNAL,
     entry_point="power_monitor_app",
     requires=["gui", "storage", "notification"],

@@ -1,6 +1,6 @@
-# Flipper Power Monitor
+# Papa Monitor
 
-Native Flipper Zero application (`.fap`) that monitors the battery, charging and
+**Papa Monitor** (Flipper Power Monitor) is a native Flipper Zero application (`.fap`) that monitors the battery, charging and
 USB input using only the built-in **BQ25896** charger and **BQ27220** fuel gauge.
 No external sensors, wires or GPIO modules.
 
@@ -9,7 +9,8 @@ does not change any charging or power setting.
 
 - Target: official Flipper Zero firmware (built and checked against release **1.5.1**, API 88.2)
 - Also builds for **Momentum** firmware (checked against `mntm-012`, API 87.1) - see [Firmware compatibility](#firmware-compatibility)
-- Category: `Tools` - installed as `/ext/apps/Tools/power_monitor.fap`
+- Category: `Tools` - shown as **Papa Monitor**, installed as `/ext/apps/Tools/power_monitor.fap`
+  (the technical app id stays `power_monitor`, so settings and CSV files keep their folder)
 
 ![Splash screen preview](docs/splash_preview.png)
 
@@ -173,7 +174,7 @@ Flipper to the same Momentum release the SDK was taken from.
 **Option B - qFlipper or SD card:**
 
 1. Copy `dist/power_monitor.fap` to `SD Card/apps/Tools/`.
-2. On the Flipper: `Apps > Tools > Power Monitor`.
+2. On the Flipper: `Apps > Tools > Papa Monitor`.
 
 ## Testing
 
@@ -193,7 +194,7 @@ Built with `-Werror`, AddressSanitizer and UndefinedBehaviorSanitizer.
 Write down the firmware version and keep the Flipper at room temperature.
 
 1. **Cross-check with the firmware.** Open `Settings > Power > Battery Info` and
-   note charge %, voltage, current and health. Start Power Monitor: Dashboard
+   note charge %, voltage, current and health. Start Papa Monitor: Dashboard
    `BAT`, `CURRENT`, `BATTERY` and Battery Health `SOH` must match within one
    update (current changes by a few mA between readings).
 2. **Discharge sign and response.** Unplug USB. `USB` shows `-- V`, the phase is
