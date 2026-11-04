@@ -118,6 +118,27 @@ static void test_gauge_time_needs_direction(void) {
     CHECK(m == 45u);
 }
 
+static void test_non_finite_current(void) {
+    /* review PR #2: NaN/Inf current must be rejected before any cast to
+     * uint32_t (casting NaN is undefined behaviour) */
+    const float nan_f = NAN;
+    const float inf_f = INFINITY;
+    uint32_t m;
+    bool est;
+    for(int ext = 0; ext <= 1; ext++) {
+        PmBatteryInfo i = info_default();
+        i.ext_valid = ext != 0;
+        i.tte_min = 312;
+        i.ttf_min = 45;
+        CHECK(!pm_health_time_to_empty(&i, nan_f, &m, &est));
+        CHECK(!pm_health_time_to_full(&i, nan_f, &m, &est));
+        CHECK(!pm_health_time_to_empty(&i, -inf_f, &m, &est));
+        CHECK(!pm_health_time_to_full(&i, inf_f, &m, &est));
+        CHECK(!pm_health_time_to_empty(&i, inf_f, &m, &est));
+        CHECK(!pm_health_time_to_full(&i, -inf_f, &m, &est));
+    }
+}
+
 void test_health_suite(void) {
     printf("[health]\n");
     RUN(test_eval_valid);
@@ -126,4 +147,5 @@ void test_health_suite(void) {
     RUN(test_time_estimates);
     RUN(test_gauge_not_ok);
     RUN(test_gauge_time_needs_direction);
+    RUN(test_non_finite_current);
 }

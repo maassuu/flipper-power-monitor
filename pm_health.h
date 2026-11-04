@@ -31,7 +31,8 @@ void pm_health_eval(const PmBatteryInfo* info, PmHealth* health);
  * Time to empty, only while discharging (current below -5 mA) and with a
  * healthy gauge: gauge TimeToEmpty() when available (extended reads),
  * otherwise an estimate remaining / |current|.
- * @return false if not applicable (not discharging / gauge not OK / no data).
+ * @return false if not applicable (not discharging / gauge not OK / no data)
+ *         or if bat_current_ma is NaN or infinite.
  */
 bool pm_health_time_to_empty(
     const PmBatteryInfo* info,
@@ -43,7 +44,7 @@ bool pm_health_time_to_empty(
  * Time to full, only while charging (current above +5 mA) and with a
  * healthy gauge: gauge TimeToFull() when available, otherwise an estimate
  * (full - remaining) / current. The estimate ignores the constant-voltage
- * taper and is therefore optimistic.
+ * taper and is therefore optimistic. Returns false for NaN or infinite current.
  */
 bool pm_health_time_to_full(
     const PmBatteryInfo* info,

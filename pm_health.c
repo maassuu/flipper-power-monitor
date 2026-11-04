@@ -1,5 +1,6 @@
 #include "pm_health.h"
 
+#include <math.h>
 #include <string.h>
 
 /* Below this current the battery is considered idle for time estimates. */
@@ -39,6 +40,9 @@ bool pm_health_time_to_empty(
     float bat_current_ma,
     uint32_t* minutes,
     bool* estimated) {
+    /* NaN would pass the direction check (all comparisons are false) and
+     * casting it to uint32_t is undefined behaviour: reject non-finite first */
+    if(!isfinite(bat_current_ma)) return false;
     /* Only while really discharging, also when the gauge reports a time */
     if(!info->gauge_ok || bat_current_ma > -PM_HEALTH_MIN_CURRENT_MA) return false;
     if(info->ext_valid) {
@@ -58,6 +62,7 @@ bool pm_health_time_to_full(
     float bat_current_ma,
     uint32_t* minutes,
     bool* estimated) {
+    if(!isfinite(bat_current_ma)) return false; /* see pm_health_time_to_empty */
     /* Only while really charging, also when the gauge reports a time */
     if(!info->gauge_ok || bat_current_ma < PM_HEALTH_MIN_CURRENT_MA) return false;
     if(info->ext_valid) {
