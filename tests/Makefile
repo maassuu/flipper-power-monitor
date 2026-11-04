@@ -15,17 +15,19 @@ BUILD = build
 
 APP_SRC = $(SRC_DIR)/pm_energy.c $(SRC_DIR)/pm_stats.c $(SRC_DIR)/pm_history.c \
           $(SRC_DIR)/pm_charge.c $(SRC_DIR)/pm_health.c $(SRC_DIR)/pm_format.c \
-          $(SRC_DIR)/pm_csv.c $(SRC_DIR)/pm_settings.c
+          $(SRC_DIR)/pm_csv.c $(SRC_DIR)/pm_settings.c $(SRC_DIR)/pm_pope.c \
+          $(SRC_DIR)/pm_logger.c
 TEST_SRC = test_main.c test_energy.c test_stats.c test_history.c test_charge.c \
-           test_health.c test_format_csv_settings.c
+           test_health.c test_format_csv_settings.c test_pope.c test_logger.c
 
 .PHONY: all run clean
 
 all: run
 
-$(BUILD)/pm_tests: $(APP_SRC) $(TEST_SRC) $(wildcard $(SRC_DIR)/*.h) test_framework.h
+$(BUILD)/pm_tests: $(APP_SRC) $(TEST_SRC) $(wildcard $(SRC_DIR)/*.h) test_framework.h \
+                  $(wildcard stubs/*.h stubs/*/*.h)
 	@mkdir -p $(BUILD)
-	$(CC) $(CFLAGS) -I$(SRC_DIR) -o $@ $(APP_SRC) $(TEST_SRC) $(LDLIBS)
+	$(CC) $(CFLAGS) -I$(SRC_DIR) -Istubs -o $@ $(APP_SRC) $(TEST_SRC) $(LDLIBS)
 
 run: $(BUILD)/pm_tests
 	./$(BUILD)/pm_tests

@@ -11,5 +11,5 @@ tests/build/
 .DS_Store
 *.swp
 
-# Local Claude Code settings
+# Local tool settings
 .claude/

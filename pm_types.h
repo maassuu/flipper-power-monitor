@@ -38,6 +38,9 @@ typedef struct {
     bool otg_enabled; /**< Flipper is supplying 5 V on USB (OTG boost) */
     bool charging; /**< furi_hal_power_is_charging() (CHRG_STAT != 00) */
     bool charge_done; /**< furi_hal_power_is_charging_done() (CHRG_STAT == 11) */
+
+    bool reg0b_valid; /**< chg_reg0b was read (extended reads enabled and OK) */
+    uint8_t chg_reg0b; /**< BQ25896 REG0B raw (system status, no read side effects) */
 } PmSample;
 
 /** Slow-changing values, read once per second. */
@@ -56,7 +59,6 @@ typedef struct {
     uint16_t tte_min; /**< BQ27220 TimeToEmpty() [min], PM_GAUGE_TIME_NA if n/a */
     uint16_t ttf_min; /**< BQ27220 TimeToFull() [min], PM_GAUGE_TIME_NA if n/a */
     uint16_t bat_status; /**< BQ27220 BatteryStatus() raw */
-    uint8_t chg_reg0b; /**< BQ25896 REG0B raw (system status) */
     uint8_t chg_reg13; /**< BQ25896 REG13 raw (DPM status) */
 } PmBatteryInfo;
 
